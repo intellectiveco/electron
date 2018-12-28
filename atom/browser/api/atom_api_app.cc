@@ -669,6 +669,20 @@ void App::OnUpdateUserActivityState(bool* prevent_default,
   }
 }
 
+void App::OnDidRegisterForRemoteNotificationsWithDeviceToken(const std::string& token) {
+   Emit("registered-for-remote-notifications", token);
+ }
+ 
+void App::OnDidFailToRegisterForRemoteNotificationsWithError(
+     const std::string& error) {
+   Emit("failed-to-register-for-remote-notifications", error);
+ }
+ 
+void App::OnDidReceiveRemoteNotification(
+     const base::DictionaryValue& user_info) {
+   Emit("received-remote-notification", user_info);
+ }
+
 void App::OnNewWindowForTab() {
   Emit("new-window-for-tab");
 }
@@ -1326,6 +1340,11 @@ void App::BuildPrototype(v8::Isolate* isolate,
       // TODO(juturu): Remove in 2.0, deprecate before then with warnings
       .SetMethod("moveToApplicationsFolder", &App::MoveToApplicationsFolder)
       .SetMethod("isInApplicationsFolder", &App::IsInApplicationsFolder)
+      .SetMethod("registerForRemoteNotifications",
+                  base::Bind(&Browser::RegisterForRemoteNotifications, browser))
+      .SetMethod(
+           "unregisterForRemoteNotifications",
+           base::Bind(&Browser::UnregisterForRemoteNotifications, browser))
 #endif
 #if defined(OS_MACOSX) || defined(OS_LINUX)
       .SetMethod("setAboutPanelOptions",
